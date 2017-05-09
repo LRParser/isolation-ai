@@ -213,7 +213,14 @@ class MinimaxPlayer(IsolationPlayer):
             raise SearchTimeout()
 
         # TODO: finish this function!
-        raise NotImplementedError
+
+        legal_moves_list_current_player = game.get_legal_moves()
+        for move in legal_moves_list_current_player :
+            move_score = self.score(move,self)
+            print(move_score)
+
+
+        return legal_moves_list_current_player[0]
 
 
 class AlphaBetaPlayer(IsolationPlayer):
