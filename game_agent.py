@@ -3,8 +3,6 @@ test your agent's strength against a set of known agents using tournament.py
 and include the results in your report.
 """
 import random
-import sample_players
-
 
 class SearchTimeout(Exception):
     """Subclass base exception for code clarity. """
@@ -37,7 +35,15 @@ def custom_score(game, player):
         The heuristic value of the current game state to the specified player.
     """
     # TODO: finish this function!
-    return sample_players.improved_score(game, player)
+    if game.is_loser(player):
+        return float("-inf")
+
+    if game.is_winner(player):
+        return float("inf")
+
+    own_moves = len(game.get_legal_moves(player))
+    opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
+    return float(own_moves - opp_moves)
 
 
 def custom_score_2(game, player):
@@ -127,55 +133,52 @@ class MinimaxHelper :
         self.agent = agent
         self.game = game
         self.depth = depth
-        print("Time left is: %f" % self.agent.time_left())
+        #print("Time left is: %f" % self.agent.time_left())
         if self.agent.time_left() < self.agent.TIMER_THRESHOLD:
-            from game_agent import SearchTimeout
             raise SearchTimeout()
 
     def decision(self):
-        print("decision, Time left is: %f" % self.agent.time_left())
+        #print("decision, Time left is: %f" % self.agent.time_left())
         if self.agent.time_left() < self.agent.TIMER_THRESHOLD:
             raise SearchTimeout()
         max_a = float("-inf")
         best_move = None
         remaining_depth = self.depth
-        print("Legal moves count is: %d" % len(self.game.get_legal_moves()))
+        #print("Legal moves count is: %d" % len(self.game.get_legal_moves()))
 
         for move in self.game.get_legal_moves() :
             simulated_state = self.game.forecast_move(move)
             simulated_score = self.min_value(simulated_state,remaining_depth)
-            print("Simulated score of %f returned" % simulated_score)
-            print("Simulated state: ")
-            print(simulated_state);
+            #print("Simulated score of %f returned" % simulated_score)
+            #print("Simulated state: ")
+            #print(simulated_state);
             if(simulated_score > max_a) :
                 max_a = simulated_score
                 best_move = move
 
-        print("Best found move has score %f",max_a)
-        print("Best move is")
-        print(best_move)
+        #print("Best found move has score %f",max_a)
+        #print("Best move is")
+        #print(best_move)
         return best_move
 
     def result(self, game_state, a):
-        print("result, Time left is: %f" % self.agent.time_left())
+        #print("result, Time left is: %f" % self.agent.time_left())
         if self.agent.time_left() < self.agent.TIMER_THRESHOLD:
             print("Time left is: %f" % self.agent.time_left())
-            from game_agent import SearchTimeout
             raise SearchTimeout()
         return game_state.forecast_move(a)
 
     def max_value(self, game_state, remaining_depth):
-        print("max_value, Time left is: %f, remaining depth %d" % (self.agent.time_left(), remaining_depth))
+        #print("max_value, Time left is: %f, remaining depth %d" % (self.agent.time_left(), remaining_depth))
         if self.agent.time_left() < self.agent.TIMER_THRESHOLD:
-            from game_agent import SearchTimeout
             raise SearchTimeout()
 
-        print("max_value legal moves len %d" % len(game_state.get_legal_moves()))
+        #print("max_value legal moves len %d" % len(game_state.get_legal_moves()))
 
 
         if not game_state.get_legal_moves() or len(game_state.get_legal_moves()) == 0 or remaining_depth == 0:
             current_score = game_state.active_player.score(game_state,self.agent)
-            print("returning score of %f" % current_score)
+            #print("returning score of %f" % current_score)
             return current_score
 
         else :
@@ -186,16 +189,15 @@ class MinimaxHelper :
             return v
 
     def min_value(self, game_state, remaining_depth):
-        print("min_value, Time left is: %f, remaining depth %d" % (self.agent.time_left(), remaining_depth))
+        #print("min_value, Time left is: %f, remaining depth %d" % (self.agent.time_left(), remaining_depth))
         if self.agent.time_left() < self.agent.TIMER_THRESHOLD:
-            from game_agent import SearchTimeout
             raise SearchTimeout()
 
-        print("min_value legal moves len %d" % len(game_state.get_legal_moves()))
+        #print("min_value legal moves len %d" % len(game_state.get_legal_moves()))
 
         if not game_state.get_legal_moves() or len(game_state.get_legal_moves()) == 0 or remaining_depth == 0:
             current_score = game_state.active_player.score(game_state,self.agent)
-            print("returning score of %f" % current_score)
+            #print("returning score of %f" % current_score)
             return current_score
         else :
             v = float("inf")
@@ -294,7 +296,7 @@ class MinimaxPlayer(IsolationPlayer):
                 each helper function or else your agent will timeout during
                 testing.
         """
-        print("Time left is: %f" % self.time_left())
+        # print("Time left is: %f" % self.time_left())
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 

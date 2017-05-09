@@ -20,7 +20,13 @@ class IsolationTest(unittest.TestCase):
         self.minimax_player = MinimaxPlayer(search_depth=2)
         self.game = isolation.Board(self.random_player, self.minimax_player)
 
+    def test_player(self):
+        self.setUp()
+        time_millis = lambda: 1000
+        self.minimax_player.get_move(self.game,time_left=time_millis)
+
     def test_minimax(self):
+        self.setUp()
         self.game.play()
 
 
