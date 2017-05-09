@@ -6,7 +6,8 @@ cases used by the project assistant are not public.
 import unittest
 
 import isolation
-import game_agent
+from game_agent import MinimaxPlayer
+from sample_players import GreedyPlayer
 
 from importlib import reload
 
@@ -15,10 +16,12 @@ class IsolationTest(unittest.TestCase):
     """Unit tests for isolation agents"""
 
     def setUp(self):
-        reload(game_agent)
-        self.player1 = "Player1"
-        self.player2 = "Player2"
-        self.game = isolation.Board(self.player1, self.player2)
+        self.random_player = GreedyPlayer()
+        self.minimax_player = MinimaxPlayer(search_depth=2)
+        self.game = isolation.Board(self.random_player, self.minimax_player)
+
+    def test_minimax(self):
+        self.game.play()
 
 
 if __name__ == '__main__':
