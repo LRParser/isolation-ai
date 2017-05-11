@@ -17,13 +17,14 @@ class IsolationTest(unittest.TestCase):
 
     def setUp(self):
         self.random_player = GreedyPlayer()
-        self.minimax_player = MinimaxPlayer(search_depth=2)
+        self.minimax_player = MinimaxPlayer(search_depth=3)
         self.game = isolation.Board(self.random_player, self.minimax_player)
 
     def test_player(self):
         self.setUp()
         time_millis = lambda: 1000
-        self.minimax_player.get_move(self.game,time_left=time_millis)
+        move = self.minimax_player.get_move(self.game,time_left=time_millis)
+        print(move)
 
     def test_minimax(self):
         self.setUp()

@@ -7,8 +7,8 @@ import random
 class SearchTimeout(Exception):
     """Subclass base exception for code clarity. """
 
-    def __init__(self):
-        raise BaseException()
+    def __init__(self, best_move):
+        self.best_move = best_move
 
 def custom_score(game, player):
     """Calculate the heuristic value of a game state from the point of view
@@ -129,56 +129,57 @@ class IsolationPlayer:
 
 
 class MinimaxHelper :
-    def __init__(self, agent, game, depth):
+    def __init__(self, agent, game, depth, score_fn):
         self.agent = agent
         self.game = game
         self.depth = depth
+        self.best_move = None
+        self.score_fn = score_fn
         #print("Time left is: %f" % self.agent.time_left())
         if self.agent.time_left() < self.agent.TIMER_THRESHOLD:
-            raise SearchTimeout()
+            raise SearchTimeout(self.best_move)
 
     def decision(self):
         #print("decision, Time left is: %f" % self.agent.time_left())
         if self.agent.time_left() < self.agent.TIMER_THRESHOLD:
-            raise SearchTimeout()
+            raise SearchTimeout(self.best_move)
         max_a = float("-inf")
         best_move = None
         remaining_depth = self.depth
-        #print("Legal moves count is: %d" % len(self.game.get_legal_moves()))
 
         for move in self.game.get_legal_moves() :
             simulated_state = self.game.forecast_move(move)
-            simulated_score = self.min_value(simulated_state,remaining_depth)
-            #print("Simulated score of %f returned" % simulated_score)
-            #print("Simulated state: ")
-            #print(simulated_state);
+            simulated_score = self.min_value(simulated_state,remaining_depth - 1)
+            print("Simulated score of %f returned" % simulated_score)
+            print("Simulated state: ")
+            print(simulated_state);
             if(simulated_score > max_a) :
                 max_a = simulated_score
                 best_move = move
+                self.best_move = best_move
 
-        #print("Best found move has score %f",max_a)
-        #print("Best move is")
-        #print(best_move)
+        print("Best found move has score %f",max_a)
+        print("Best move is")
+        print(best_move)
         return best_move
 
     def result(self, game_state, a):
         #print("result, Time left is: %f" % self.agent.time_left())
         if self.agent.time_left() < self.agent.TIMER_THRESHOLD:
             print("Time left is: %f" % self.agent.time_left())
-            raise SearchTimeout()
+            raise SearchTimeout(self.best_move)
         return game_state.forecast_move(a)
 
     def max_value(self, game_state, remaining_depth):
-        #print("max_value, Time left is: %f, remaining depth %d" % (self.agent.time_left(), remaining_depth))
+        print("max_value, Time left is: %f, remaining depth %d" % (self.agent.time_left(), remaining_depth))
         if self.agent.time_left() < self.agent.TIMER_THRESHOLD:
-            raise SearchTimeout()
+            raise SearchTimeout(self.best_move)
 
-        #print("max_value legal moves len %d" % len(game_state.get_legal_moves()))
+        print("max_value legal moves len %d" % len(game_state.get_legal_moves()))
 
-
-        if not game_state.get_legal_moves() or len(game_state.get_legal_moves()) == 0 or remaining_depth == 0:
-            current_score = game_state.active_player.score(game_state,self.agent)
-            #print("returning score of %f" % current_score)
+        if remaining_depth == 0:
+            current_score = self.score_fn(game_state,self.agent)
+            print("returning score of %f" % current_score)
             return current_score
 
         else :
@@ -189,15 +190,13 @@ class MinimaxHelper :
             return v
 
     def min_value(self, game_state, remaining_depth):
-        #print("min_value, Time left is: %f, remaining depth %d" % (self.agent.time_left(), remaining_depth))
+        print("min_value, Time left is: %f, remaining depth %d" % (self.agent.time_left(), remaining_depth))
         if self.agent.time_left() < self.agent.TIMER_THRESHOLD:
-            raise SearchTimeout()
+            raise SearchTimeout(self.best_move)
 
-        #print("min_value legal moves len %d" % len(game_state.get_legal_moves()))
-
-        if not game_state.get_legal_moves() or len(game_state.get_legal_moves()) == 0 or remaining_depth == 0:
-            current_score = game_state.active_player.score(game_state,self.agent)
-            #print("returning score of %f" % current_score)
+        if remaining_depth == 0:
+            current_score = self.score_fn(game_state,self.agent)
+            print("returning score of %f" % current_score)
             return current_score
         else :
             v = float("inf")
@@ -251,8 +250,8 @@ class MinimaxPlayer(IsolationPlayer):
             # raised when the timer is about to expire.
             return self.minimax(game, self.search_depth)
 
-        except SearchTimeout:
-            pass  # Handle any actions required after timeout as needed
+        except SearchTimeout as st:
+            return st.best_move  # Handle any actions required after timeout as needed
 
         # Return the best move from the last completed search iteration
         return best_move
@@ -302,7 +301,7 @@ class MinimaxPlayer(IsolationPlayer):
 
         # TODO: finish this function!
 
-        mh = MinimaxHelper(self, game, depth)
+        mh = MinimaxHelper(self, game, depth, self.score)
         best_move = mh.decision()
 
         return best_move
