@@ -1,3 +1,67 @@
+# Failing Test
+
+************************************************************************
+                         Test Failure Feedback                          
+************************************************************************
+
+Failed Test: 7. Test functionality of AlphaBetaPlayer.alphabeta()
+----------------------------------------------------------------------
+AssertionError: False is not true : Your AlphaBetaAgent.alphabeta function returned a move that was not one of the optimal moves for the given heurisitc.
+Available choices:
+[(4, 3)]
+Your Selection: (7, 6)
+
+Test Case Details:
+------------------
+Heuristic: improved_score
+Depth limit: 1
+Initial Board State:
+     0   1   2   3   4   5   6   7   8
+0  |   |   |   |   |   |   |   |   |   | 
+1  |   |   |   |   |   |   |   |   |   | 
+2  |   |   | 2 |   |   | - |   |   |   | 
+3  |   |   |   | - | - |   |   |   |   | 
+4  |   |   | - |   | - | - | - |   |   | 
+5  |   |   | - | - | - | 1 |   |   |   | 
+6  |   |   |   | - |   |   | - |   |   | 
+7  |   |   |   |   |   |   |   |   |   | 
+8  |   |   |   |   |   |   |   |   |   | 
+
+game._board_state:
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 50]
+
+# My unit test
+
+(aind) Josephs-MacBook-Pro:isolation-ai josephheenan$ python agent_test.py 
+     0   1   2   3   4   5   6   7   8
+0  |   |   |   |   |   |   |   |   |   | 
+1  |   |   |   |   |   |   |   |   |   | 
+2  |   |   | 2 |   |   | - |   |   |   | 
+3  |   |   |   | - | - |   |   |   |   | 
+4  |   |   | - |   | - | - | - |   |   | 
+5  |   |   | - | - | - | 1 |   |   |   | 
+6  |   |   |   | - |   |   | - |   |   | 
+7  |   |   |   |   |   |   |   |   |   | 
+8  |   |   |   |   |   |   |   |   |   | 
+
+<game_agent.AlphaBetaPlayer object at 0x10f07e748>
+max_value, Time left is: 1000.000000
+max_value legal moves len 6
+min_value, Time left is: 1000.000000
+min_value depth 0, returning score of 0.000000
+min_value, Time left is: 1000.000000
+min_value depth 0, returning score of -4.000000
+min_value, Time left is: 1000.000000
+min_value depth 0, returning score of -2.000000
+min_value, Time left is: 1000.000000
+min_value depth 0, returning score of -3.000000
+min_value, Time left is: 1000.000000
+min_value depth 0, returning score of -1.000000
+min_value, Time left is: 1000.000000
+min_value depth 0, returning score of -3.000000
+Returning move: 4 , 7 with score: 0.0
+Returning: 4,7
+
 
 # Build a Game-playing Agent
 
