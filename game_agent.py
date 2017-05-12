@@ -324,92 +324,85 @@ class MinimaxPlayer(IsolationPlayer):
 
 class AlphaBetaHelper :
 
-    def __init__(self, agent, game, depth, score_fn):
+    def __init__(self, agent, game, depth, score_fn, alpha, beta):
         self.agent = agent
         self.game = game
-        self.depth = depth
         self.best_move = None
+        self.depth = depth
         self.score_fn = score_fn
-        #print("Time left is: %f" % self.agent.time_left())
+        self.alpha = alpha
+        self.beta = beta
+        self.actions = {}
+
         if self.agent.time_left() < self.agent.TIMER_THRESHOLD:
-            raise SearchTimeout(self.best_move)
+            raise SearchTimeout()
 
     def decision(self):
         #print("decision, Time left is: %f" % self.agent.time_left())
         if self.agent.time_left() < self.agent.TIMER_THRESHOLD:
-            raise SearchTimeout(self.best_move)
-        max_a = float("-inf")
-        best_move = None
+            raise SearchTimeout()
 
-        if len(self.game.get_legal_moves()) == 0:
-            return (-1,-1)
+        v = self.max_value(self.game,self.depth, self.alpha,self.beta)
 
-        for move in self.game.get_legal_moves() :
-            simulated_state = self.game.forecast_move(move)
-            if(self.depth and self.depth > 0) :
-                simulated_score = self.min_value(simulated_state,self.depth - 1)
-            else :
-                simulated_score = self.min_value_it(simulated_state)
-            print("Simulated score of %f returned" % simulated_score)
-            print("Simulated state: ")
-            print(simulated_state);
-            if(simulated_score > max_a) :
-                max_a = simulated_score
-                best_move = move
-                self.best_move = best_move
-
-        print("Best found move has score %f",max_a)
-        print("Best move is")
-        print(best_move)
+        if(v == float("-inf") or v == float("inf")) :
+            best_move = (-1,-1)
+        else :
+            best_move = self.actions[v]
+        print("Returning move: "+str(best_move[0])+" , "+str(best_move[1])+" with score: "+str(v))
         return best_move
 
     def result(self, game_state, a):
         #print("result, Time left is: %f" % self.agent.time_left())
         if self.agent.time_left() < self.agent.TIMER_THRESHOLD:
             print("Time left is: %f" % self.agent.time_left())
-            raise SearchTimeout(self.best_move)
+            raise SearchTimeout()
         return game_state.forecast_move(a)
 
-    def max_value(self, game_state, remaining_depth):
-        print("max_value, Time left is: %f, remaining depth %d" % (self.agent.time_left(), remaining_depth))
+    def max_value(self, game_state, depth, alpha, beta):
+        print("max_value, Time left is: %f" % (self.agent.time_left()))
         if self.agent.time_left() < self.agent.TIMER_THRESHOLD:
-            raise SearchTimeout(self.best_move)
+            raise SearchTimeout()
 
         print("max_value legal moves len %d" % len(game_state.get_legal_moves()))
 
-        if remaining_depth == 0:
+        if depth == 0 or len(self.game.get_legal_moves()) == 0:
             current_score = self.score_fn(game_state,self.agent)
-            print("returning score of %f" % current_score)
+            print("max_value depth 0, returning score of %f" % current_score)
             return current_score
 
-        else :
-            v = float("-inf")
+        v = float("-inf")
 
-            if len(self.game.get_legal_moves()) == 0:
-                return (-1,-1)
+        for a in game_state.get_legal_moves() :
+            v = max(v, self.min_value(self.result(game_state,a),depth - 1, alpha,beta))
+            self.actions[v] = a
 
-            for a in game_state.get_legal_moves() :
-                if remaining_depth > 0 :
-                    v = max(v, self.min_value(self.result(game_state,a), remaining_depth - 1))
-            return v
+            if v >= beta :
+                return v
+            alpha = max(alpha,v)
 
-    def min_value(self, game_state, remaining_depth):
-        print("min_value, Time left is: %f, remaining depth %d" % (self.agent.time_left(), remaining_depth))
+        return v
+
+    def min_value(self, game_state, depth, alpha, beta):
+        print("min_value, Time left is: %f" % (self.agent.time_left()))
         if self.agent.time_left() < self.agent.TIMER_THRESHOLD:
             raise SearchTimeout(self.best_move)
 
-        if remaining_depth == 0:
+        if depth == 0 or len(self.game.get_legal_moves()) == 0:
             current_score = self.score_fn(game_state,self.agent)
-            print("returning score of %f" % current_score)
+            print("min_value depth 0, returning score of %f" % current_score)
             return current_score
-        else :
-            v = float("inf")
-            if len(self.game.get_legal_moves()) == 0:
-                return (-1,-1)
-            for a in game_state.get_legal_moves() :
-                if remaining_depth > 0 :
-                    v = min(v, self.max_value(self.result(game_state,a),remaining_depth - 1))
-            return v
+
+        v = float("inf")
+
+        for a in game_state.get_legal_moves() :
+            v = min(v, self.max_value(self.result(game_state,a),depth - 1, alpha,beta))
+            self.actions[v] = a
+
+            if v <= alpha :
+                return v
+            beta = min(beta,v)
+
+        return v
 
 
 class AlphaBetaPlayer(IsolationPlayer):
@@ -523,7 +516,7 @@ class AlphaBetaPlayer(IsolationPlayer):
 
         # TODO: finish this function!
 
-        mh = MinimaxHelper(self, game, depth, self.score)
-        best_move = mh.decision()
+        abh = AlphaBetaHelper(self, game, depth, self.score, alpha, beta)
+        best_move = abh.decision()
 
         return best_move

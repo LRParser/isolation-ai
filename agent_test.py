@@ -22,20 +22,26 @@ class IsolationTest(unittest.TestCase):
         self.iterative_player = AlphaBetaPlayer(search_depth=6)
         self.game = isolation.Board(self.random_player, self.minimax_player)
 
-    def test_player(self):
-        self.setUp()
-        time_millis = lambda: 1000
-        move = self.minimax_player.get_move(self.game,time_left=time_millis)
-        print(move)
+    # def test_player(self):
+    #     self.setUp()
+    #     time_millis = lambda: 1000
+    #     move = self.minimax_player.get_move(self.game,time_left=time_millis)
+    #     print(move)
+    #
+    # def test_minimax(self):
+    #     self.setUp()
+    #     self.game.play()
+    #
+    # def test_iterative_deepening(self):
+    #     self.setUp()
+    #     self.iterative_player.time_left = lambda: 1000
+    #     self.iterative_player.alphabeta(self.game,1)
 
-    def test_minimax(self):
+    def test_alphabeta(self):
         self.setUp()
+        self.game = isolation.Board(self.random_player, self.iterative_player)
         self.game.play()
 
-    def test_iterative_deepening(self):
-        self.setUp()
-        time_millis = lambda: 1000
-        self.iterative_player.get_move(self.game,time_left=time_millis)
 
 
 
