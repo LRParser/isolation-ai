@@ -20,7 +20,7 @@ class IsolationTest(unittest.TestCase):
         self.random_player = GreedyPlayer()
         self.minimax_player = MinimaxPlayer(search_depth=3)
         self.iterative_player = AlphaBetaPlayer(search_depth=6)
-        self.game = isolation.Board(self.random_player, self.minimax_player)
+        self.game = isolation.Board(self.minimax_player, self.random_player)
 
     # def test_player(self):
     #     self.setUp()
@@ -39,8 +39,17 @@ class IsolationTest(unittest.TestCase):
 
     def test_alphabeta(self):
         self.setUp()
-        self.game = isolation.Board(self.random_player, self.iterative_player)
-        self.game.play()
+        self.game = isolation.Board(self.iterative_player, self.random_player,9,9)
+        self.game._board_state = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 50]
+        print(self.game.to_string())
+
+        time_left = lambda : 1000
+        game_copy = self.game.copy()
+        self.game.active_player.time_left = time_left
+        print(self.game._active_player)
+        next_move = self.game._active_player.alphabeta(game_copy, 1)
+        print("Returning: %d,%d" % (next_move[0], next_move[1]))
+        #self.game.play()
 
 
 

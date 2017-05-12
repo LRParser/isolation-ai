@@ -72,8 +72,15 @@ def custom_score_2(game, player):
         The heuristic value of the current game state to the specified player.
     """
     # TODO: finish this function!
-    raise NotImplementedError
+    if game.is_loser(player):
+        return float("-inf")
 
+    if game.is_winner(player):
+        return float("inf")
+
+    own_moves = len(game.get_legal_moves(player))
+    opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
+    return float(own_moves - 2 * opp_moves)
 
 def custom_score_3(game, player):
     """Calculate the heuristic value of a game state from the point of view
@@ -98,7 +105,15 @@ def custom_score_3(game, player):
         The heuristic value of the current game state to the specified player.
     """
     # TODO: finish this function!
-    raise NotImplementedError
+    if game.is_loser(player):
+        return float("-inf")
+
+    if game.is_winner(player):
+        return float("inf")
+
+    own_moves = len(game.get_legal_moves(player))
+    opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
+    return own_moves - 3 * opp_moves
 
 
 class IsolationPlayer:
@@ -263,12 +278,17 @@ class MinimaxPlayer(IsolationPlayer):
         try:
             # The try/except block will automatically catch the exception
             # raised when the timer is about to expire.
-            return self.minimax(game, self.search_depth)
+            best_move = self.minimax(game, self.search_depth)
+            print("Returning: %d,%d" % (best_move[0], best_move[1]))
+            return best_move
 
         except SearchTimeout as st:
+            print("Returning: %d,%d" % (best_move[0], best_move[1]))
             return best_move  # Handle any actions required after timeout as needed
 
+
         # Return the best move from the last completed search iteration
+        print("Returning: %d,%d" % (best_move[0], best_move[1]))
         return best_move
 
     def minimax(self, game, depth):
@@ -446,6 +466,10 @@ class AlphaBetaPlayer(IsolationPlayer):
         # TODO: finish this function!
         # Initialize the best move so that this function returns something
         # in case the search fails due to timeout
+
+        print("Starting state")
+        print(game.to_string())
+
         best_move = (-1, -1)
 
         search_depth = 1
@@ -456,8 +480,10 @@ class AlphaBetaPlayer(IsolationPlayer):
                 # The try/except block will automatically catch the exception
                 # raised when the timer is about to expire.
                 best_move = self.alphabeta(game,search_depth)
+                print("Best move found of: %d,%d" % (best_move[0],best_move[1]))
 
             except SearchTimeout as st:
+                print("Timeout, best move found of: %d,%d" % (best_move[0],best_move[1]))
                 return best_move  # Handle any actions required after timeout as needed
 
             search_depth = search_depth + 1
