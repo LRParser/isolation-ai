@@ -40,3 +40,15 @@ A visualization of the performance of this heuristic is given in the "Overall Re
 ## Summary of "Nearness to Opponent" heuristic
 
 This heuristic rewarded an agent for placing himself nearer to the opponent. It is thought that this heuristic may have rewarded creating a partition, and it appears to have down so. However, without the intelligence of scoring the number of positions that remained available to the opponent after "moving towards" him, it merely drew a tie against the "AB_Improved" agent. It appears this heuristic may have similarity to the "improved" heuristic, seen by the lack of any meaningful improvement vs this heuristic.
+
+## Recommended Heuristic
+
+My recommended heuristic is the Weighted Linear Combination Heuristic.
+
+I can see three distinct reasons to support the choice of using the weighted linear combination heuristic:
+
+1) It is relatively simple to implement, meaning that others can modify the code in the future without needing a great deal of training or introducing a great risk of breakage. This is not the case in the other two heuristics, which rely on a more subtle "sum of squared errors" approach for evaluation.
+
+2) It is an heuritstic which would support a grid-based search (using e.g., scikit-learn) to find an optimal coefficients, i.e., it can take the form ax + by + z, and each of a, b, and z coefficients can be determined via grid search. It has only been shown empirically that -1.5 is a good value for the b coefficient, but it is likely that better choices exist
+
+3) It allows us to find partitions early, especially those that "box opponents" into a corner due to its tendency to prefer moves that significantly decrease that ratio of opponent moves to own available moves. This is posited to help the algorithm reach an endgame earlier in simulation, allowing for an increased efficiency in timed iterative deepening searches compared to the other heuristics.
