@@ -352,7 +352,6 @@ class AlphaBetaHelper :
         self.score_fn = score_fn
         self.alpha = alpha
         self.beta = beta
-        self.actions = {}
 
         if self.agent.time_left() < self.agent.TIMER_THRESHOLD:
             raise SearchTimeout()
@@ -361,22 +360,19 @@ class AlphaBetaHelper :
         if self.agent.time_left() < self.agent.TIMER_THRESHOLD:
             raise SearchTimeout()
 
-
         max_score = float("-inf")
         best_move = None
         for move in self.game.get_legal_moves() :
-            score = self.min_value(self.game,self.depth - 1,self.alpha,self.beta)
+            score = self.min_value(self.game,self.depth,self.alpha,self.beta)
             if score >= max_score  :
+                max_score = score
                 best_move = move
-                print("Setting best move: "+str(best_move[0])+" , "+str(best_move[1])+" with score: "+score)
+                print("Setting best move: "+str(best_move[0])+" , "+str(best_move[1])+" with score: "+str(+score))
 
-
-        # v = self.max_value(self.game,self.depth, self.alpha,self.beta)
-
-        if(max_score == float("-inf") or max_score == float("inf")) :
+        if max_score == float("-inf") :
             best_move = (-1,-1)
 
-        print("Returning move: "+str(best_move[0])+" , "+str(best_move[1])+" with score: "+score)
+        print("Returning best move: "+str(best_move[0])+" , "+str(best_move[1])+" with score: "+str(+score))
         return best_move
 
     def result(self, game_state, a):
@@ -402,9 +398,6 @@ class AlphaBetaHelper :
         for a in game_state.get_legal_moves() :
             v = max(v, self.min_value(self.result(game_state,a),depth - 1, alpha,beta))
             print("v is %f, would set action to: %d,  %d" % (v, a[0],a[1]))
-            if v not in self.actions :
-                print("v not already in actions, adding it")
-                self.actions[v] = a
 
             if v >= beta :
                 return v
@@ -427,9 +420,6 @@ class AlphaBetaHelper :
         for a in game_state.get_legal_moves() :
             v = min(v, self.max_value(self.result(game_state,a),depth - 1, alpha,beta))
             print("v is %f, setting action to: %d,  %d" % (v, a[0],a[1]))
-            if v not in self.actions :
-                print("v not already in actions, adding it")
-                self.actions[v] = a
 
             if v <= alpha :
                 return v
