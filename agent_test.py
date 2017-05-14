@@ -41,13 +41,14 @@ class IsolationTest(unittest.TestCase):
         self.setUp()
         self.game = isolation.Board(self.iterative_player, self.random_player,9,9)
         self.game._board_state = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 50]
+        self.game._board_state = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 67, 47]
         print(self.game.to_string())
 
         time_left = lambda : 1000
         game_copy = self.game.copy()
         self.game.active_player.time_left = time_left
         print(self.game._active_player)
-        next_move = self.game._active_player.alphabeta(game_copy, 1)
+        next_move = self.game._active_player.alphabeta(game_copy, 2)
         print("Returning: %d,%d" % (next_move[0], next_move[1]))
         #self.game.play()
 
