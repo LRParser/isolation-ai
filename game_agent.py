@@ -529,19 +529,4 @@ class AlphaBetaPlayer(IsolationPlayer):
             print("move_score is: %f for %d,%d" % (move_score,move[0],move[1]))
             if move_score == best_move_score :
                 return move
-
-        # max_score = float("-inf")
-        # best_move = None
-        # for move in game.get_legal_moves() :
-        #     score = self.min_value(game,depth - 1 ,alpha,beta)
-        #     if score >= max_score  :
-        #         max_score = score
-        #         best_move = move
-        #         print("Setting best move: "+str(best_move[0])+" , "+str(best_move[1])+" with score: "+str(+score))
-        #
-        # if max_score == float("-inf") :
-        #     best_move = (-1,-1)
-        #
-        # print("Returning best move: "+str(best_move[0])+" , "+str(best_move[1])+" with score: "+str(+score))
-        #
-        # return best_move
+        return (-1,-1)
