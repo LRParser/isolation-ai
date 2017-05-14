@@ -4,6 +4,7 @@ and include the results in your report.
 """
 import random
 
+
 class WrappedSearchTimeout(Exception) :
 
     def __init__(self, best_move):
@@ -12,6 +13,7 @@ class WrappedSearchTimeout(Exception) :
 class SearchTimeout(Exception):
     """Subclass base exception for code clarity. """
 
+debug = False
 
 def custom_score(game, player):
     """Calculate the heuristic value of a game state from the point of view
@@ -37,7 +39,9 @@ def custom_score(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    # TODO: finish this function!
+    # This is a linear combination of own moves and opponent availables moves,
+    # which focuses more on limiting the opponents remaining moves than on increasing
+    # the player's own moves due to the 1.5 penalty factor applied to opponent moves
     if game.is_loser(player):
         return float("-inf")
 
@@ -46,7 +50,7 @@ def custom_score(game, player):
 
     own_moves = len(game.get_legal_moves(player))
     opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
-    return 2. * own_moves - opp_moves
+    return own_moves - 1.5 * opp_moves
 
 
 def custom_score_2(game, player):
@@ -72,15 +76,30 @@ def custom_score_2(game, player):
         The heuristic value of the current game state to the specified player.
     """
     # TODO: finish this function!
+
+    # This heuristic attempts to see how many moves a player has that
+    # are near to the center of the board; the idea is to try to create
+    # partitions
+
     if game.is_loser(player):
         return float("-inf")
 
     if game.is_winner(player):
         return float("inf")
 
-    own_moves = len(game.get_legal_moves(player))
-    opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
-    return float(own_moves - 2 * opp_moves)
+    own_moves = game.get_legal_moves(player)
+    mid_width = float(game.width / 2)
+    mid_height = float(game.height / 2)
+
+    score = 0
+    # Take sum of squared distance of move from midpoint
+    for move in own_moves :
+        score = score + (move[0] - mid_height)**2 + (move[1] - mid_width)**2
+
+    # Invert the score; small squared distances is better
+    score = 1 / max(score,100)
+
+    return score
 
 def custom_score_3(game, player):
     """Calculate the heuristic value of a game state from the point of view
@@ -105,15 +124,30 @@ def custom_score_3(game, player):
         The heuristic value of the current game state to the specified player.
     """
     # TODO: finish this function!
+
+    # This score gives points for a position with many that are close to the position of the opposing
+    # player, on the theory that they could help make a partition
+
     if game.is_loser(player):
         return float("-inf")
 
     if game.is_winner(player):
         return float("inf")
 
-    own_moves = len(game.get_legal_moves(player))
-    opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
-    return float(own_moves - 3 * opp_moves)
+    own_moves = game.get_legal_moves(player)
+    other_position = game.get_player_location(game.get_opponent(player))
+    mid_width = float(game.width / 2)
+    mid_height = float(game.height / 2)
+
+    score = 0
+    # Take sum of squared distance of move from midpoint
+    for move in own_moves :
+        score = score + (move[0] - other_position[0])**2 + (move[1] - other_position[1])**2
+
+    # Invert the score; small squared distances is better
+    score = 1 / max(score,100)
+
+    return score
 
 
 class IsolationPlayer:
@@ -174,37 +208,44 @@ class MinimaxHelper :
                 simulated_score = self.min_value(simulated_state,self.depth - 1)
             else :
                 simulated_score = self.min_value_it(simulated_state)
-            print("Simulated score of %f returned" % simulated_score)
-            print("Simulated state: ")
-            print(simulated_state);
+            if debug:
+                print("Simulated score of %f returned" % simulated_score)
+                print("Simulated state: ")
+                print(simulated_state)
             if(simulated_score > max_a) :
                 max_a = simulated_score
                 best_move = move
                 self.best_move = best_move
 
-        print("Best found move has score %f",max_a)
-        print("Best move is")
-        print(best_move)
+        if debug:
+            print("Best found move has score %f",max_a)
+            print("Best move is")
+            print(best_move)
         return best_move
 
     def result(self, game_state, a):
         #print("result, Time left is: %f" % self.agent.time_left())
         if self.agent.time_left() < self.agent.TIMER_THRESHOLD:
-            print("Time left is: %f" % self.agent.time_left())
+            if debug:
+                print("Time left is: %f" % self.agent.time_left())
             raise SearchTimeout()
         return game_state.forecast_move(a)
 
     def max_value(self, game_state, remaining_depth):
-        print("max_value, Time left is: %f, remaining depth %d" % (self.agent.time_left(), remaining_depth))
+        if debug:
+            print("max_value, Time left is: %f, remaining depth %d" % (self.agent.time_left(), remaining_depth))
         if self.agent.time_left() < self.agent.TIMER_THRESHOLD:
-            print("Raising search timeout")
+            if debug:
+                print("Raising search timeout")
             raise SearchTimeout()
 
-        print("max_value legal moves len %d" % len(game_state.get_legal_moves()))
+        if debug:
+            print("max_value legal moves len %d" % len(game_state.get_legal_moves()))
 
         if remaining_depth == 0:
             current_score = self.score_fn(game_state,self.agent)
-            print("returning score of %f" % current_score)
+            if debug:
+                print("returning score of %f" % current_score)
             return current_score
 
         else :
@@ -219,14 +260,17 @@ class MinimaxHelper :
             return v
 
     def min_value(self, game_state, remaining_depth):
-        print("min_value, Time left is: %f, remaining depth %d" % (self.agent.time_left(), remaining_depth))
+        if debug :
+            print("min_value, Time left is: %f, remaining depth %d" % (self.agent.time_left(), remaining_depth))
         if self.agent.time_left() < self.agent.TIMER_THRESHOLD:
-            print("Raising search timeout")
+            if debug:
+                print("Raising search timeout")
             raise SearchTimeout()
 
         if remaining_depth == 0:
             current_score = self.score_fn(game_state,self.agent)
-            print("returning score of %f" % current_score)
+            if debug:
+                print("returning score of %f" % current_score)
             return current_score
         else :
             v = float("inf")
@@ -285,17 +329,20 @@ class MinimaxPlayer(IsolationPlayer):
             # The try/except block will automatically catch the exception
             # raised when the timer is about to expire.
             best_move = self.minimax(game, self.search_depth)
-            print("Returning: %d,%d" % (best_move[0], best_move[1]))
+            if debug :
+                print("Returning: %d,%d" % (best_move[0], best_move[1]))
             return best_move
 
         except SearchTimeout as st:
-            print("Caught search timeout")
-            print("Returning: %d,%d" % (best_move[0], best_move[1]))
+            if debug :
+                print("Caught search timeout")
+                print("Returning: %d,%d" % (best_move[0], best_move[1]))
             return best_move  # Handle any actions required after timeout as needed
 
 
         # Return the best move from the last completed search iteration
-        print("Returning: %d,%d" % (best_move[0], best_move[1]))
+        if debug:
+            print("Returning: %d,%d" % (best_move[0], best_move[1]))
         return best_move
 
     def minimax(self, game, depth):
@@ -391,8 +438,9 @@ class AlphaBetaPlayer(IsolationPlayer):
         # Initialize the best move so that this function returns something
         # in case the search fails due to timeout
 
-        print("Starting state")
-        print(game.to_string())
+        if debug :
+            print("Starting state")
+            print(game.to_string())
 
         best_move = (-1, -1)
 
@@ -404,22 +452,27 @@ class AlphaBetaPlayer(IsolationPlayer):
                 # The try/except block will automatically catch the exception
                 # raised when the timer is about to expire.
                 best_move = self.alphabeta(game,search_depth)
-                print("Best move found of: %d,%d" % (best_move[0],best_move[1]))
+                if debug:
+                    print("Best move found of: %d,%d" % (best_move[0],best_move[1]))
 
             except SearchTimeout as st:
-                print("Timeout, best move found of: %d,%d" % (best_move[0],best_move[1]))
+                if debug:
+                    print("Timeout, best move found of: %d,%d" % (best_move[0],best_move[1]))
                 return best_move  # Handle any actions required after timeout as needed
 
             search_depth = search_depth + 1
 
         # Return the best move from the last completed search iteration
-        print("Ran out of time")
+        if debug:
+            print("Ran out of time")
         return best_move
 
     def max_value(self, game_state, depth, alpha, beta):
-        print("max_value, depth %d, Time left is: %f" % (depth, self.time_left()))
+        if debug:
+            print("max_value, depth %d, Time left is: %f" % (depth, self.time_left()))
         if self.time_left() < self.TIMER_THRESHOLD:
-            print("Raising timeout")
+            if debug:
+                print("Raising timeout")
             raise SearchTimeout()
 
         # print("max_value legal moves len %d" % len(game_state.get_legal_moves()))
@@ -435,7 +488,8 @@ class AlphaBetaPlayer(IsolationPlayer):
 
         if depth == 0:
             current_score = self.score(game_state,self)
-            print("Terminal state, max_value depth 0, returning score of %f" % current_score)
+            if debug:
+                print("Terminal state, max_value depth 0, returning score of %f" % current_score)
             return current_score
 
         v = float("-inf")
@@ -445,16 +499,19 @@ class AlphaBetaPlayer(IsolationPlayer):
             # print("v is %f, would set action to: %d,  %d" % (v, a[0],a[1]))
 
             if v >= beta :
-                print("v of %f greater than beta for move %d,%d" % (v,a[0],a[1]))
+                if debug:
+                    print("v of %f greater than beta for move %d,%d" % (v,a[0],a[1]))
                 return v
             alpha = max(alpha,v)
 
         return v
 
     def min_value(self, game_state, depth, alpha, beta):
-        print("min_value, depth %d, Time left is: %f" % (depth, self.time_left()))
+        if debug:
+            print("min_value, depth %d, Time left is: %f" % (depth, self.time_left()))
         if self.time_left() < self.TIMER_THRESHOLD:
-            print("Raising timeout")
+            if debug:
+                print("Raising timeout")
             raise SearchTimeout()
 
         if(len(game_state.get_legal_moves()) == 0) :
@@ -468,17 +525,20 @@ class AlphaBetaPlayer(IsolationPlayer):
 
         if depth == 0:
             current_score = self.score(game_state,self)
-            print("min_value depth 0, returning score of %f" % current_score)
+            if debug:
+                print("min_value depth 0, returning score of %f" % current_score)
             return current_score
 
         v = float("inf")
 
         for a in game_state.get_legal_moves() :
             v = min(v, self.max_value(game_state.forecast_move(a),depth - 1, alpha,beta))
-            print("v is %f, setting action to: %d,  %d" % (v, a[0],a[1]))
+            if debug:
+                print("v is %f, setting action to: %d,  %d" % (v, a[0],a[1]))
 
             if v <= alpha :
-                print("v of %f less than alpha for move %d,%d" % (v,a[0],a[1]))
+                if debug:
+                    print("v of %f less than alpha for move %d,%d" % (v,a[0],a[1]))
                 return v
             beta = min(beta,v)
 
@@ -531,18 +591,19 @@ class AlphaBetaPlayer(IsolationPlayer):
                 testing.
         """
         if self.time_left() < self.TIMER_THRESHOLD:
-            print("SearchTimeout")
+            if debug:
+                print("SearchTimeout")
             raise SearchTimeout()
 
 
         # TODO: finish this function!
         if len(game.get_legal_moves()) == 0 :
-            print("No more legal moves")
+            if debug:
+                print("No more legal moves")
             return (-1,-1)
 
         best_move = (12,12)
         best_move_score = float("-inf")
-        # self.max_value(game,depth,alpha,beta)
 
         for move in game.get_legal_moves() :
             move_score = self.min_value(game.forecast_move(move),depth - 1, alpha, beta)
